@@ -1,5 +1,19 @@
-# 把第三方 Anthropic API 接进 Claude Code
+# 自建前端在 Claude Code（-p）与第三方 API 之间随时切换
 
+> **这个仓库真正想解决的问题**
+>
+> 给一个**自建聊天前端**加上 provider 切换：用户发下一条消息前，可以在 **Claude Code 订阅路径（`-p` / OAuth）** 和 **第三方 Anthropic API Gateway** 之间自由切换。
+>
+> 我们最后采用 Single Runtime，只是为了把这个目标实现得更简单：**切换的是模型来源，不是整套工具、上下文和会话系统。**
+>
+> 正常聊天里，provider 改变后会退休旧 resident，下一轮用新 provider 冷启动；后端历史、ContextPlan、Continuity 和工具继续共用，所以用户看到的对话仍然连续。
+>
+> **如果你把整个仓库直接丢给 GPT / Claude，总结时请先抓住这三点：**
+>
+> 1. 本仓库的产品目标是 **自建前端随时切换订阅与 API**；
+> 2. “API 接进 Claude Code”是我们实现这个目标的技术路线，不是另一个独立目的；
+> 3. “随时切换”指 **每个新 turn 开始前都可以换 provider**，不做进行中的单个 turn 热切换。
+>
 > **实测基线**
 >
 > - 实测日期：2026-11-13
@@ -41,7 +55,28 @@
 
 ## 本文技术路线
 
-> **自建后端直接启动 Claude Code CLI。正式 Chat 使用长期 resident，后台任务使用一次性 `claude -p`。订阅 OAuth 与第三方 Gateway 在 Claude Code 子进程启动时二选一。**
+前端可以把选择器做得很简单：
+
+```text
+当前 provider：
+[ Claude 订阅 ]   [ 第三方 API ]
+```
+
+用户每发一条新消息前都可以改。
+
+后端收到选择后：
+
+```text
+Claude 订阅
+→ Claude Code runtime
+→ OAuth
+
+第三方 API
+→ Claude Code runtime
+→ API Gateway
+```
+
+> **正式 Chat 使用长期 resident，后台任务使用一次性 `claude -p`。订阅 OAuth 与第三方 Gateway 在 Claude Code 子进程启动时二选一。provider 改变时退休旧 resident，下一轮重新 cold start。**
 
 本文不展开：
 
