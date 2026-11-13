@@ -25,13 +25,42 @@
 1. **怎么把第三方 Anthropic-compatible API 临时接进 Claude Code**，先不碰你原来的长期配置；
 2. **怎么用 `claude -p` 和真实工具调用一步一步验收**，别只看“能不能回一句话”；
 3. **怎么让 API 和订阅共用同一套 Claude Code runtime**，后端原生工具继续只保留一份；
-4. 以及接入时容易撞到的 **Base URL、鉴权、缓存、provider 切换和费用显示**。
+4. 以及接入时容易撞到的 **Base URL、鉴权、权限、缓存、provider 切换和 resident 运维**。
 
 这不是什么新框架，也没有神奇黑科技。**这套做法很普通。** 只是中文资料里很少有人把“最小测试 → 工具回合 → 接进项目 → 长期运行”完整写成一条可以照着走的路，所以干脆整理下来。
 
 第一次写教程，希望它至少做到一件事：**不用先懂完整架构，也能从第一步开始亲手验证。**
 
-> **提醒：** Claude Code、Anthropic 条款和第三方 Gateway 都可能变化。这里记录的是技术接法和实测方法，实际使用请以你当时看到的官方条款和服务商规则为准。
+## 适用场景
+
+后半部分的生产架构，默认环境是：
+
+- **自建前端 + 自建后端**；
+- 后端在 **Linux VPS / 长期在线服务器** 上拉起 Claude Code 子进程；
+- Claude Code 运行在 **headless（无人值守、没有交互式终端）** 环境；
+- 主要讨论 **单用户 / 自用服务**；
+- 工具、数据库和长期上下文由自己的后端掌握。
+
+多用户产品也可以参考思路，但需要额外处理 **每个用户的凭据、session、进程、数据和并发隔离**，这里没有展开。
+
+如果你只是想：
+
+> “我在自己电脑终端里，能不能让 Claude Code 用某个第三方 API？”
+
+那看到第 3 篇就够了，后面的 resident、VPS、ContextPlan 都可以不看。
+
+## ⚠️ 条款与凭据边界
+
+这个仓库只记录技术接法，不替任何服务商解释使用条款。
+
+Anthropic 当前文档会区分订阅 OAuth 与开发者 / 产品使用的 API 凭据，也明确限制第三方产品代用户收集、保存或中转 claude.ai 登录凭据。**本教程的完整 VPS 架构默认是单用户自用环境，不提供“让别的用户拿你的订阅凭据来跑”的方案。**
+
+使用前请自己核对最新规则：
+
+- [Claude Code Legal and compliance](https://code.claude.com/docs/en/legal-and-compliance)
+- [Claude Code Settings](https://code.claude.com/docs/en/settings)
+
+第三方 Gateway 自己的服务条款也要单独看。
 
 ## 一眼看懂
 
@@ -71,9 +100,9 @@ Claude 订阅 OAuth ──┘
 | [1. 开始之前：准备好三样东西](docs/01-准备.md) | Claude Code、Gateway、Key 和 Base URL |
 | [2. 第一关：最小 `-p` 测试](docs/02-最小-p测试.md) | 验证 Claude Code → Gateway → 模型 |
 | [3. 第二关：工具调用测试](docs/03-工具调用测试.md) | 真正跑一次完整工具回合 |
-| [4. 接进自己的项目](docs/04-接进自己的项目.md) | 保留后端工具，只统一 runtime |
-| [5. Provider 切换与长期运行](docs/05-切换与长期运行.md) | resident、session、后台 `-p` |
-| [6. 兼容性与常见坑](docs/06-兼容性与常见坑.md) | streaming、thinking、cache、鉴权 |
+| [4. 接进自己的项目](docs/04-接进自己的项目.md) | VPS 鉴权、工具权限、自动压缩与 runtime 边界 |
+| [5. Provider 切换与长期运行](docs/05-切换与长期运行.md) | resident、session、`--resume`、排队与后台 `-p` |
+| [6. 兼容性与常见坑](docs/06-兼容性与常见坑.md) | streaming、thinking、cache、版本漂移、鉴权 |
 | [7. 自测清单](docs/07-自测清单.md) | 上线前从头到尾打一次勾 |
 | [8. 双 Runtime 与 Single Runtime](docs/08-双Runtime与SingleRuntime.md) | 两种架构的优势、代价和适用条件 |
 
