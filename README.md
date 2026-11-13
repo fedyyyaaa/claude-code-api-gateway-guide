@@ -1,5 +1,15 @@
 # 把第三方 Anthropic API 接进 Claude Code
 
+> **实测环境**
+>
+> - 实测日期：2026-11-13
+> - Claude Code：2.1.280
+> - Gateway 类型：Anthropic Messages-compatible 第三方 API Gateway
+> - 实测服务：Poke
+> - 已通过：最小 `claude -p`、真实 Bash 工具回合
+>
+> 这里只记录当时真实跑通的环境。Claude Code 和 Gateway 都会更新，版本变化后建议重新跑第 2、3 篇的两个探针。
+
 事情起因其实特别普通。
 
 我原本有两条路：一边用 Claude Code，一边直接调第三方 Anthropic API。工具早就放在自己的后端共用了，可再往上一层看，API 还要自己维护请求循环，Claude Code 又有自己的 agent loop、session 和 `-p`。
@@ -64,6 +74,7 @@ Claude 订阅 OAuth ──┘
 | [5. Provider 切换与长期运行](docs/05-切换与长期运行.md) | resident、session、后台 `-p` |
 | [6. 兼容性与常见坑](docs/06-兼容性与常见坑.md) | streaming、thinking、cache、鉴权 |
 | [7. 自测清单](docs/07-自测清单.md) | 上线前从头到尾打一次勾 |
+| [8. 双 Runtime 与 Single Runtime](docs/08-双Runtime与SingleRuntime.md) | 两种架构的优势、代价和适用条件 |
 
 ## 一句话版本
 
