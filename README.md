@@ -55,10 +55,13 @@
 
 Anthropic 当前文档会区分订阅 OAuth 与开发者 / 产品使用的 API 凭据，也明确限制第三方产品代用户收集、保存或中转 claude.ai 登录凭据。**本教程的完整 VPS 架构默认是单用户自用环境，不提供“让别的用户拿你的订阅凭据来跑”的方案。**
 
+**官方文档核对日期：2026-11-13。** 条款和权限规则变化很快，读到这篇时请再点开原文确认。
+
 使用前请自己核对最新规则：
 
 - [Claude Code Legal and compliance](https://code.claude.com/docs/en/legal-and-compliance)
 - [Claude Code Settings](https://code.claude.com/docs/en/settings)
+- [Claude Code Troubleshooting](https://code.claude.com/docs/en/troubleshooting)
 
 第三方 Gateway 自己的服务条款也要单独看。
 
