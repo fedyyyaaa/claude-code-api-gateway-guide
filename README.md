@@ -1,14 +1,22 @@
 # 把第三方 Anthropic API 接进 Claude Code
 
-> **实测环境**
+> **实测基线**
 >
 > - 实测日期：2026-11-13
 > - Claude Code：2.1.280
 > - Gateway 类型：Anthropic Messages-compatible 第三方 API Gateway
-> - 实测服务：Poke
-> - 已通过：最小 `claude -p`、真实 Bash 工具回合
 >
-> 这里只记录当时真实跑通的环境。Claude Code 和 Gateway 都会更新，版本变化后建议重新跑第 2、3 篇的两个探针。
+> Claude Code 和 Gateway 都会更新。版本变化后，建议重新跑第 2、3 篇的两个探针。
+
+### 实测矩阵
+
+| Gateway | 最小 `claude -p` | 真实工具回合 | 本文 Single Runtime 正式 Chat | 实测模型 / 备注 |
+|---|---|---|---|---|
+| Poke | ✅ | ✅ Bash | ⏳ 尚未完成生产 E2E 验收 | `claude-opus-5` · 2026-11-13 |
+| Tree | ✅ | 未测 | 未测 | `claude-opus-4-6` · 2026-11-13 |
+| 小鸡农场 | 🟡 请求到达服务端，额度不足 | 未测 | 未测 | 模型未生成；这里只证明地址与凭据链路可达 · 2026-11-13 |
+
+> **“正式 Chat”这一列只统计本文的 Single Runtime 路径。** 以前通过独立 Messages API runtime 用过某家服务，不会在这里冒充 Claude Code runtime 的验收结果。
 
 事情起因其实特别普通。
 
@@ -30,6 +38,19 @@
 这不是什么新框架，也没有神奇黑科技。**这套做法很普通。** 只是中文资料里很少有人把“最小测试 → 工具回合 → 接进项目 → 长期运行”完整写成一条可以照着走的路，所以干脆整理下来。
 
 第一次写教程，希望它至少做到一件事：**不用先懂完整架构，也能从第一步开始亲手验证。**
+
+## 本文技术路线
+
+> **自建后端直接启动 Claude Code CLI。正式 Chat 使用长期 resident，后台任务使用一次性 `claude -p`。订阅 OAuth 与第三方 Gateway 在 Claude Code 子进程启动时二选一。**
+
+本文不展开：
+
+- Agent SDK bridge；
+- 独立 Messages API runtime 的完整实现；
+- 多租户隔离；
+- Gateway 横向测评或推荐榜。
+
+这样做只是为了把范围收窄：先把一条我实际在用、实际跑过的路线写清楚。
 
 ## 适用场景
 
@@ -60,6 +81,8 @@ Anthropic 当前文档会区分订阅 OAuth 与开发者 / 产品使用的 API �
 使用前请自己核对最新规则：
 
 - [Claude Code Legal and compliance](https://code.claude.com/docs/en/legal-and-compliance)
+- [Claude Code Authentication](https://code.claude.com/docs/en/authentication)
+- [Claude Code Environment variables](https://code.claude.com/docs/en/env-vars)
 - [Claude Code Settings](https://code.claude.com/docs/en/settings)
 - [Claude Code Troubleshooting](https://code.claude.com/docs/en/troubleshooting)
 
